@@ -33,7 +33,6 @@ class GroupModelTest(TestCase):
             description='Тестовое описание',
         )
 
-
     def test_group_model_have_correct_object_names(self):
         """Проверяем, что у модели Group корректно работает __str__."""
         group = GroupModelTest.group

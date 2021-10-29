@@ -7,7 +7,6 @@ class StaticURLTests(TestCase):
     def setUp(self):
         self.guest_client = Client()
 
-
     def test_techpage_and_authorpage(self):
         httpStatus_url = {
             HTTPStatus.OK: '/about/tech/',
@@ -26,4 +25,4 @@ class StaticURLTests(TestCase):
         for template, adress in templates_url_names.items():
             with self.subTest(adress=adress):
                 response = self.guest_client.get(adress)
-                self.assertTemplateUsed(response, template) 
+                self.assertTemplateUsed(response, template)

@@ -4,7 +4,9 @@ from django.shortcuts import render
 
 
 def page_not_found(request, exception):
-    return render(request, 'core/404.html', {'path': request.path}, status=HTTPStatus.NOT_FOUND)
+    status = HTTPStatus.NOT_FOUND
+    path = request.path
+    return render(request, 'core/404.html', {'path': path}, status=status)
 
 
 def csrf_failure(request, reason=''):
@@ -12,4 +14,5 @@ def csrf_failure(request, reason=''):
 
 
 def server_error(request):
-    return render(request, 'core/500.html', status=HTTPStatus.INTERNAL_SERVER_ERROR)
+    status = HTTPStatus.INTERNAL_SERVER_ERROR
+    return render(request, 'core/500.html', status=status)

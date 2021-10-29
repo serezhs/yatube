@@ -42,7 +42,6 @@ class PostsURLTests(TestCase):
                 response = self.guest_client.get(url)
                 self.assertEqual(response.status_code, httpStatus)
 
-
     def test_url_available_for_authorized_users(self):
         httpStatus_url = {
             HTTPStatus.OK: '/create/',
@@ -53,17 +52,16 @@ class PostsURLTests(TestCase):
                 response = self.authorized_client.get(url)
                 self.assertEqual(response.status_code, httpStatus)
 
-
     def test_posts_templates(self):
         templates_url_names = {
-            'posts/index.html': '/',
-            'posts/group_list.html': f'/group/{self.group.slug}/',
-            'posts/profile.html': f'/profile/{self.user.username}/',
-            'posts/post_detail.html': f'/posts/{self.post.id}/',
-            'posts/create_post.html': '/create/',
-            'posts/create_post.html': f'/posts/{self.post.id}/edit/',
+            '/': 'posts/index.html',
+            f'/group/{self.group.slug}/': 'posts/group_list.html',
+            f'/profile/{self.user.username}/': 'posts/profile.html',
+            f'/posts/{self.post.id}/': 'posts/post_detail.html',
+            '/create/': 'posts/create_post.html',
+            f'/posts/{self.post.id}/edit/': 'posts/create_post.html',
         }
-        for template, adress in templates_url_names.items():
+        for adress, template in templates_url_names.items():
             with self.subTest(adress=adress):
                 response = self.authorized_client.get(adress)
-                self.assertTemplateUsed(response, template) 
+                self.assertTemplateUsed(response, template)
