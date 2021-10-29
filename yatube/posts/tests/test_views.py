@@ -3,11 +3,12 @@ import tempfile
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
-from posts.models import Group, Post, Follow
+from posts.models import Follow, Group, Post
 
 User = get_user_model()
 
@@ -51,6 +52,7 @@ class PostsURLTests(TestCase):
         shutil.rmtree(TEMP_MEDIA_ROOT, ignore_errors=True)
 
     def setUp(self):
+        cache.clear()
         self.guest_client = Client()
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
@@ -151,13 +153,36 @@ class PaginatorViewsTest(TestCase):
             title='test',
             slug='test',
         )
-        for i in range(13):
-            Post.objects.create(
-                text=i,
-                author=cls.user,
-                group=cls.group)
+        Post.objects.bulk_create([
+            Post(text='1', author=cls.user, group=cls.group),
+            Post(text='2', author=cls.user, group=cls.group),
+            Post(text='3', author=cls.user, group=cls.group),
+            Post(text='4', author=cls.user, group=cls.group),
+            Post(text='5', author=cls.user, group=cls.group),
+            Post(text='6', author=cls.user, group=cls.group),
+            Post(text='7', author=cls.user, group=cls.group),
+            Post(text='8', author=cls.user, group=cls.group),
+            Post(text='9', author=cls.user, group=cls.group),
+            Post(text='10', author=cls.user, group=cls.group),
+            Post(text='11', author=cls.user, group=cls.group),
+            Post(text='12', author=cls.user, group=cls.group),
+            Post(text='13', author=cls.user, group=cls.group),
+        ])
+
+# from django.db import transaction
+#         with transaction.atomic():
+#             for i in range(13):
+#                 Post.objects.create(
+#                     text=i,
+#                     author=cls.user,
+#                     group=cls.group)
+
+# В интернетах наткнулся еще на такой способ
+# множествееного создания записей в ДБ
+# Можно использовать его или bulk_create() эффективнее?
 
     def setUp(self):
+        cache.clear()
         self.guest_client = Client()
 
     def test_first_index_page_contains_ten_records(self):
@@ -204,18 +229,36 @@ class FollowTest(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.userOne = User.objects.create_user(username='userOne')
-        cls.userTwo = User.objects.create_user(username='userTwo')
+        cls.user_one = User.objects.create_user(username='user_one')
+        cls.user_two = User.objects.create_user(username='user_two')
+        cls.post = Post.objects.create(
+            text='Тестовый текст',
+            author=cls.user_two,
+        )
 
     def setUp(self):
         self.authorized_client = Client()
-        self.authorized_client.force_login(self.userOne)
+        self.authorized_client.force_login(self.user_one)
 
     def test_follow(self):
         """Авторизованный пользователь может подписываться на других"""
-        self.authorized_client.get(f'/profile/{self.userTwo.username}/follow/')
+        follow_url = f'/profile/{self.user_two.username}/follow/'
+        unfollow_url = f'/profile/{self.user_two.username}/unfollow/'
+        self.authorized_client.get(follow_url)
         self.assertTrue(
             Follow.objects.filter(
-                user=self.userOne,
-                author=self.userTwo,
+                user=self.user_one,
+                author=self.user_two,
             ).exists())
+        self.authorized_client.get(unfollow_url)
+        self.assertFalse(
+            Follow.objects.filter(
+                user=self.user_one,
+                author=self.user_two,
+            ).exists())
+
+    def test_follow_index(self):
+        follow_url = f'/profile/{self.user_two.username}/follow/'
+        self.authorized_client.get(follow_url)
+        response = self.authorized_client.get(reverse('posts:follow_index'))
+        self.assertEqual(response.context.get('page_obj')[0], self.post)
