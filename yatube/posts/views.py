@@ -39,12 +39,12 @@ def group_posts(request, slug):
 
 @require_http_methods(["GET"])
 def profile(request, username):
-    following = bool
     author = get_object_or_404(User, username=username)
     posts = author.posts.all()
     paginator = Paginator(posts, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
+    following = False
     if request.user.is_authenticated:
         user = request.user
         following = Follow.objects.filter(user=user, author=author).exists()

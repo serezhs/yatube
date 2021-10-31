@@ -31,26 +31,26 @@ class PostsURLTests(TestCase):
 
     def test_url_available_for_all_users(self):
         httpStatus_url = {
-            HTTPStatus.OK: '/',
-            HTTPStatus.OK: f'/group/{self.group.slug}/',
-            HTTPStatus.OK: f'/posts/{self.post.id}/',
-            HTTPStatus.OK: f'/profile/{self.user.username}/',
-            HTTPStatus.NOT_FOUND: '/unexiting_page/',
+            '/': HTTPStatus.OK,
+            f'/group/{self.group.slug}/': HTTPStatus.OK,
+            f'/posts/{self.post.id}/': HTTPStatus.OK,
+            f'/profile/{self.user.username}/': HTTPStatus.OK,
+            '/unexiting_page/': HTTPStatus.NOT_FOUND,
         }
-        for httpStatus, url in httpStatus_url.items():
+        for url, http_status, in httpStatus_url.items():
             with self.subTest(url=url):
                 response = self.guest_client.get(url)
-                self.assertEqual(response.status_code, httpStatus)
+                self.assertEqual(response.status_code, http_status)
 
     def test_url_available_for_authorized_users(self):
-        httpStatus_url = {
-            HTTPStatus.OK: '/create/',
-            HTTPStatus.OK: f'/posts/{self.post.id}/edit/',
+        http_status_url = {
+            '/create/': HTTPStatus.OK,
+            f'/posts/{self.post.id}/edit/': HTTPStatus.OK,
         }
-        for httpStatus, url in httpStatus_url.items():
+        for url, http_status in http_status_url.items():
             with self.subTest(url=url):
                 response = self.authorized_client.get(url)
-                self.assertEqual(response.status_code, httpStatus)
+                self.assertEqual(response.status_code, http_status)
 
     def test_posts_templates(self):
         templates_url_names = {

@@ -8,14 +8,14 @@ class StaticURLTests(TestCase):
         self.guest_client = Client()
 
     def test_techpage_and_authorpage(self):
-        httpStatus_url = {
-            HTTPStatus.OK: '/about/tech/',
-            HTTPStatus.OK: '/about/author/',
+        http_status_url = {
+            '/about/tech/': HTTPStatus.OK,
+            '/about/author/': HTTPStatus.OK,
         }
-        for httpStatus, url in httpStatus_url.items():
+        for url, http_status in http_status_url.items():
             with self.subTest(url=url):
                 response = self.guest_client.get(url)
-                self.assertEqual(response.status_code, httpStatus)
+                self.assertEqual(response.status_code, http_status)
 
     def test_authorpage_and_techpage_templates(self):
         templates_url_names = {

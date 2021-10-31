@@ -154,32 +154,9 @@ class PaginatorViewsTest(TestCase):
             slug='test',
         )
         Post.objects.bulk_create([
-            Post(text='1', author=cls.user, group=cls.group),
-            Post(text='2', author=cls.user, group=cls.group),
-            Post(text='3', author=cls.user, group=cls.group),
-            Post(text='4', author=cls.user, group=cls.group),
-            Post(text='5', author=cls.user, group=cls.group),
-            Post(text='6', author=cls.user, group=cls.group),
-            Post(text='7', author=cls.user, group=cls.group),
-            Post(text='8', author=cls.user, group=cls.group),
-            Post(text='9', author=cls.user, group=cls.group),
-            Post(text='10', author=cls.user, group=cls.group),
-            Post(text='11', author=cls.user, group=cls.group),
-            Post(text='12', author=cls.user, group=cls.group),
-            Post(text='13', author=cls.user, group=cls.group),
+            Post(text=str(i), author=cls.user, group=cls.group)
+            for i in range(1, 14)
         ])
-
-# from django.db import transaction
-#         with transaction.atomic():
-#             for i in range(13):
-#                 Post.objects.create(
-#                     text=i,
-#                     author=cls.user,
-#                     group=cls.group)
-
-# В интернетах наткнулся еще на такой способ
-# множествееного создания записей в ДБ
-# Можно использовать его или bulk_create() эффективнее?
 
     def setUp(self):
         cache.clear()
@@ -243,13 +220,18 @@ class FollowTest(TestCase):
     def test_follow(self):
         """Авторизованный пользователь может подписываться на других"""
         follow_url = f'/profile/{self.user_two.username}/follow/'
-        unfollow_url = f'/profile/{self.user_two.username}/unfollow/'
         self.authorized_client.get(follow_url)
         self.assertTrue(
             Follow.objects.filter(
                 user=self.user_one,
                 author=self.user_two,
             ).exists())
+
+    def test_unfollow(self):
+        """Авторизованный пользователь может подписываться на других"""
+        follow_url = f'/profile/{self.user_two.username}/follow/'
+        unfollow_url = f'/profile/{self.user_two.username}/unfollow/'
+        self.authorized_client.get(follow_url)
         self.authorized_client.get(unfollow_url)
         self.assertFalse(
             Follow.objects.filter(
