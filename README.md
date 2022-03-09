@@ -51,7 +51,7 @@ git clone https://github.com/serezhs/yatube.git
 ```
 
 ```
-cd hw05_final
+cd yatube
 ```
 
 Cоздать и активировать виртуальное окружение:
